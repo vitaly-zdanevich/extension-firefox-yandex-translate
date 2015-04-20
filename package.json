@@ -5,5 +5,5 @@
   "description": "Translate selected word or phrase over translate.yandex.ru from any lang to Russian - result in context menu (right click). Minimum and fast. Unofficial extension. https://github.com/vitaly-zdanevich/extension-firefox-yandex-translate",
   "author": "Vitaly Zdanevich",
   "license": "MPL 2.0",
-  "version": "0.2"
+  "version": "0.3"
 }
