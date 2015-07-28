@@ -2,8 +2,8 @@
   "name": "yandex-translate-in-context",
   "title": "Yandex translate - from anything to Russian (or from Russian to English)",
   "id": "jid1-ac4GNZhbcz2Q0A",
-  "description": "Translate selected word or phrase over translate.yandex.ru from any lang to Russian (or from Russian to English) - result in context menu (right click). Minimum and fast. Unofficial extension. https://github.com/vitaly-zdanevich/extension-firefox-yandex-translate",
+  "description": "Translate selected word or phrase over translate.yandex.ru from any lang to Russian (or from Russian to English) - result in context menu (right click), or if translated text more than 75 symbols - in popup. Minimum and fast. Not affect DOM. Unofficial extension - works using official API. https://github.com/vitaly-zdanevich/extension-firefox-yandex-translate",
   "author": "Vitaly Zdanevich",
   "license": "MPL 2.0",
-  "version": "0.8"
+  "version": "0.9"
 }
