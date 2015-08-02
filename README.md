@@ -6,5 +6,6 @@ Minimum and fast - without hotkeys and option screen. Unofficial extension - wor
 ![яндекс переводчик для фаерфокс, яндекс переводчик для firefox](/screenshot-ch-ru.png)
 ![яндекс переводчик для фаерфокс, яндекс переводчик для firefox](/screenshot-en-ru-popup.png)
 ![яндекс переводчик для фаерфокс, яндекс переводчик для firefox](/screenshot-ch-ru-long.png)
+![яндекс переводчик для фаерфокс, яндекс переводчик для firefox](/screenshot-hover.png)
 
 https://addons.mozilla.org/en-US/firefox/addon/yandex-translate-in-context/
