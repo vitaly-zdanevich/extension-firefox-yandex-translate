@@ -5,7 +5,7 @@
   "description": "Translate selected word or phrase over translate.yandex.ru from any lang to Russian (or from Russian to English) - result in context menu (right click), tooltip (move the mouse over the context menu item) and in popup - if Firefox not in fullscreen. If a pop-up window disappears before you have time to read it - just hover your mouse over the pop-up window - and it will not disappear until you remove the mouse. Minimum and fast - without hotkeys and option screen. Not affect DOM. Unofficial extension - works using official API. Source code at https://github.com/vitaly-zdanevich/extension-firefox-yandex-translate",
   "author": "Vitaly Zdanevich",
   "license": "MPL 2.0",
-  "version": "1.3",
+  "version": "1.4",
   "preferences": [{
     "name": "popup",
     "title": "popup",

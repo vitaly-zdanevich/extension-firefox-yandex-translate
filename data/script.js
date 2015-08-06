@@ -14,9 +14,9 @@ function getSelectedText(win,doc) {
 	// it is in a textarea/input/textbox.
 	var ta;
 	if (win.getSelection && doc.activeElement){
-		if (doc.activeElement.nodeName == "TEXTAREA" ||
-			(doc.activeElement.nodeName == "INPUT" &&
-			doc.activeElement.getAttribute("type").toLowerCase() == "text")
+		if (doc.activeElement.nodeName == 'TEXTAREA' || doc.activeElement.getAttribute("id") == 'text' ||
+			(doc.activeElement.nodeName == 'INPUT' &&
+			doc.activeElement.getAttribute("type").toLowerCase() == 'text')
 		){
 			ta = doc.activeElement;
 			return ta.value.substring(ta.selectionStart, ta.selectionEnd);
