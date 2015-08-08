@@ -9,6 +9,7 @@ var data = require('sdk/self').data;
 var tabs = require('sdk/tabs');
 var prefs = require('sdk/simple-prefs').prefs;
 var cmitems = null;
+var buttons = require('sdk/ui/button/action');
 
 var wasTranslatedSecondTime = false;
 var inProgress = '...';
@@ -33,6 +34,17 @@ var menuItem = contextMenu.Item({
 	}
 });
 
+var button = buttons.ActionButton({
+	id: 'translate-button',
+	label: 'Replace selected text with translated',
+	icon: './ico.png',
+	onclick: handleClick
+});
+
+function handleClick() {
+	tabs.open('g.co');
+}
+
 function translate(lang, input) {
 	Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
 		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20150627T071448Z.117dacaac1e63b79.6b1b4bb84635161fcd400dace9fb2220d6f344ef&lang=' +
@@ -47,6 +59,7 @@ function translate(lang, input) {
 				menuItem.label = translated;
 				wasTranslatedSecondTime = false;
 				if (prefs.tooltip) tooltip(translated);
+				getMostRecentBrowserWindow().document.querySelectorAll('#text').value = translated;
 			}
 		}
 	}).get();
