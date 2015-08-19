@@ -17,6 +17,11 @@
     "type": "bool",
     "value": true
   },{
+    "name": "hotkey",
+    "title": "hotkey: Ctrl + Shift + ",
+    "type": "string",
+    "value": "t"
+  },{
     "name": "keyUsers",
     "title": "Your key from tech.yandex.ru/keys",
     "type": "string",

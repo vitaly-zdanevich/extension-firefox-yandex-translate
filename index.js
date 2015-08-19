@@ -28,17 +28,17 @@ var
 		context: contextMenu.SelectionContext(),
 		contentScriptFile: data.url('script.js'),
 		onClick: function() {
-					if (selection.text)
-						translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
+			if (selection.text != null) // Merge duplicated onClick and onPress to named function and call it here? Not working
+				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
 		}
 	}),
-	changeTextHotKey = Hotkey({
-		combo: 'accel-shift-t',
+	Hotkey({
+		combo: 'accel-shift-' + prefs.hotkey,
 		onPress: function() {
-					if (selection.text)
-						translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
+			if (selection.text != null)
+				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
 		}
-	});
+	}),
 
 	menuItem = contextMenu.Item({
 		data: uuidstr, // for 'binding' tooltop's 'id' + text
@@ -49,7 +49,7 @@ var
 		onMessage: function(message) {
 			if (message.name == 'context') {
 				menuItem.label = inProgress; // ...
-				if (cmitems != undefined) cmitems[0].tooltipText = '';
+				if (cmitems != undefined && cmitems[0]) cmitems[0].tooltipText = '';
 				var input = message.data.replace('&', '%26');
 				translate('ru', input, key); // default direction - from EN to RU
 			} else { // if (message.name == 'click')
@@ -66,16 +66,15 @@ function translate(lang, input, key, callback) {
 			if (response.json.code == 200) { // ok
 				translated = response.json.text[0];
 				if (input == translated && wasTranslatedSecondTime == false) {  // if input on Russian and we receive the same text -
-					translate('en', input, key);                                     // translate again selected text into English
+					translate('en', input, key);                                // translate again selected text into English
 					wasTranslatedSecondTime = true;
 				} else { // show results
-					if (prefs.popup) popup(translated);
 					menuItem.label = translated;
 					wasTranslatedSecondTime = false;
+					if (prefs.popup) popup(translated);
 					if (prefs.tooltip && !callback) tooltip(translated);
-					getMostRecentBrowserWindow().document.querySelectorAll('#text').value = translated;
+					if (callback) callback();
 				}
-				if (callback) callback();
 			} else if (prefs.keyUsers == '') { // key ended and user not input own key in preferences
 				menuItem.label = ':(';
 				notifications.notify({
@@ -103,5 +102,6 @@ function popup(text) {
 function tooltip(translated) {
 	menuItem.data = uuidstr + translated;
 	cmitems = getMostRecentBrowserWindow().document.querySelectorAll(".addon-context-menu-item[value^='"+uuidstr+"']");
-	cmitems[0].tooltipText = cmitems[0].value.substring(36);
+	if (cmitems[0])
+		cmitems[0].tooltipText = cmitems[0].value.substring(36);
 }
