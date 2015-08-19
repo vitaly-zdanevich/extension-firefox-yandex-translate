@@ -65,8 +65,8 @@ function translate(lang, input, key, callback) {
 		onComplete: function (response) {
 			if (response.json.code == 200) { // ok
 				translated = response.json.text[0];
-				if (input == translated && wasTranslatedSecondTime == false) {  // if input on Russian and we receive the same text -
-					translate('en', input, key);                                // translate again selected text into English
+				if (input == translated && wasTranslatedSecondTime == false) {  				// if input on Russian and we receive the same text -
+					translate('en', input, key, function() {selection.html = translated;});     // translate again selected text into English
 					wasTranslatedSecondTime = true;
 				} else { // show results
 					menuItem.label = translated;
