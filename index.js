@@ -76,6 +76,3 @@ function tooltip(translated) {
 	cmitems = getMostRecentBrowserWindow().document.querySelectorAll(".addon-context-menu-item[value^='"+uuidstr+"']");
 	cmitems[0].tooltipText = cmitems[0].value.substring(36);
 }
-
-
-
