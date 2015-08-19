@@ -18,6 +18,7 @@ var
 	inProgress = '...',
 	translated = '',
 	selectionText = '',
+	key = "trnsl.1.1.20150627T071448Z.117dacaac1e63b79.6b1b4bb84635161fcd400dace9fb2220d6f344ef",
 
 	button = ActionButton({
 		id: 'translate-button',
@@ -25,7 +26,7 @@ var
 		icon: './ico.png',
 		onClick: function() {
 			if (selection.text) {
-				translate('ru', selection.text, function() {selection.html = translated;}); // default direction - from EN to RU
+				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
 			} else popup('Nothing selected');
 		} 
 	}),
@@ -41,7 +42,7 @@ var
 				menuItem.label = inProgress; // ...
 				if (cmitems != undefined) cmitems[0].tooltipText = '';
 				var input = message.data.replace('&', '%26');
-				translate('ru', input); // default direction - from EN to RU
+				translate('ru', input, key); // default direction - from EN to RU
 			} else { // if (message.name == 'click')
 				tabs.open(message.data);
 			}
@@ -49,22 +50,34 @@ var
 	})
 ;
 
-function translate(lang, input, callback) {
+function translate(lang, input, key, callback) {
 	Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
-		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20150627T071448Z.117dacaac1e63b79.6b1b4bb84635161fcd400dace9fb2220d6f344ef&lang=' + lang + '&text=' + input,
+		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + key + '&lang=' + lang + '&text=' + input,
 		onComplete: function (response) {
-			translated = response.json.text[0];
-			if (input == translated && wasTranslatedSecondTime == false) {  // if input on Russian and we receive the same text -
-				translate('en', input);                                     // translate again selected text into English
-				wasTranslatedSecondTime = true;
-			} else { // show results
-				if (prefs.popup) popup(translated);
-				menuItem.label = translated;
-				wasTranslatedSecondTime = false;
-				if (prefs.tooltip && !callback) tooltip(translated);
-				getMostRecentBrowserWindow().document.querySelectorAll('#text').value = translated;
+			if (response.json.code == 200) { // ok
+				translated = response.json.text[0];
+				if (input == translated && wasTranslatedSecondTime == false) {  // if input on Russian and we receive the same text -
+					translate('en', input, key);                                     // translate again selected text into English
+					wasTranslatedSecondTime = true;
+				} else { // show results
+					if (prefs.popup) popup(translated);
+					menuItem.label = translated;
+					wasTranslatedSecondTime = false;
+					if (prefs.tooltip && !callback) tooltip(translated);
+					getMostRecentBrowserWindow().document.querySelectorAll('#text').value = translated;
+				}
+				if (callback) callback();
+			} else if (prefs.keyUsers == '') { // key ended and user not input own key in preferences
+				menuItem.label = ':(';
+				notifications.notify({
+					title: 'API-key ended - for continue of translating please get another one, it is free',
+					text: 'Click here for opening page when you can get another API-key. After getting key - insert in preferences of this addon',
+					time: 50000,
+					onClick: function() {
+						tabs.open('https://tech.yandex.com/keys');
+					}
+				})
 			}
-			callback();
 		}
 	}).get();
 }

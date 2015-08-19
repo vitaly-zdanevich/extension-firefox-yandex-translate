@@ -16,5 +16,10 @@
     "title": "tooltip",
     "type": "bool",
     "value": true
+  },{
+    "name": "keyUsers",
+    "title": "Your key from tech.yandex.ru/keys",
+    "type": "string",
+    "value": null
   }]
 }
