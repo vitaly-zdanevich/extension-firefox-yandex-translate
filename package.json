@@ -20,7 +20,7 @@
     "name": "hotkey",
     "title": "hotkey: Ctrl + Shift + ",
     "type": "string",
-    "value": "t"
+    "value": "T"
   },{
     "name": "keyUsers",
     "title": "Your key from tech.yandex.ru/keys",

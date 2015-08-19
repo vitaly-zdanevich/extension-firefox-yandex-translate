@@ -23,7 +23,7 @@ var
 
 	button = ActionButton({
 		id: 'translate-button',
-		label: 'Replace selected text with translated',
+		label: 'Replace selected text with translated: Ctrl + Shift + ' + prefs.hotkey + ' - in options you can change this hotkey',
 		icon: './ico.png',
 		context: contextMenu.SelectionContext(),
 		contentScriptFile: data.url('script.js'),
