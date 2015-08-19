@@ -9,6 +9,7 @@ var
 	self = require('sdk/self'),
 	data = require('sdk/self').data,
 	tabs = require('sdk/tabs'),
+	{ Hotkey } = require("sdk/hotkeys");
 	selection = require('sdk/selection'),
 	prefs = require('sdk/simple-prefs').prefs,
 	cmitems = null,
@@ -27,11 +28,17 @@ var
 		context: contextMenu.SelectionContext(),
 		contentScriptFile: data.url('script.js'),
 		onClick: function() {
-			if (selection.text) {
-				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
-			} else popup('Nothing selected');
-		} 
+					if (selection.text)
+						translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
+		}
 	}),
+	changeTextHotKey = Hotkey({
+		combo: 'accel-shift-t',
+		onPress: function() {
+					if (selection.text)
+						translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
+		}
+	});
 
 	menuItem = contextMenu.Item({
 		data: uuidstr, // for 'binding' tooltop's 'id' + text
