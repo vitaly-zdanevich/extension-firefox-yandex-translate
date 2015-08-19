@@ -9,12 +9,21 @@ var data = require('sdk/self').data;
 var tabs = require('sdk/tabs');
 var prefs = require('sdk/simple-prefs').prefs;
 var cmitems = null;
-var buttons = require('sdk/ui/button/action');
+var { ActionButton } = require('sdk/ui/button/action');
 
 var wasTranslatedSecondTime = false;
 var inProgress = '...';
 var translated = '';
 var selectionText = '';
+
+var button = ActionButton({
+	id: 'translate-button',
+	label: 'Replace selected text with translated',
+	icon: './ico.png',
+	onclick: function() {
+		console.log('x');
+	}
+});
 
 var menuItem = contextMenu.Item({
 	data: uuidstr, // for 'binding' tooltop's 'id' + text
@@ -34,21 +43,9 @@ var menuItem = contextMenu.Item({
 	}
 });
 
-var button = buttons.ActionButton({
-	id: 'translate-button',
-	label: 'Replace selected text with translated',
-	icon: './ico.png',
-	onclick: handleClick
-});
-
-function handleClick() {
-	tabs.open('g.co');
-}
-
 function translate(lang, input) {
 	Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
-		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20150627T071448Z.117dacaac1e63b79.6b1b4bb84635161fcd400dace9fb2220d6f344ef&lang=' +
-																					lang + '&text=' + input,
+		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20150627T071448Z.117dacaac1e63b79.6b1b4bb84635161fcd400dace9fb2220d6f344ef&lang=' + lang + '&text=' + input,
 		onComplete: function (response) {
 			translated = response.json.text[0];
 			if (input == translated && wasTranslatedSecondTime == false) {  // if input on Russian and we receive the same text -

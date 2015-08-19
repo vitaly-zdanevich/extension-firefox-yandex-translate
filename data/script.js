@@ -52,13 +52,3 @@ function getSelectedText(win,doc) {
 		return doc.getSelection().toString();
 	}
 }
-
-function translate() {
-	Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
-		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20150627T071448Z.117dacaac1e63b79.6b1b4bb84635161fcd400dace9fb2220d6f344ef&lang=ru&input=sex',
-		onComplete: function (response) {
-			translated = response.json.text[0];
-			console.log(translated);
-		}
-	}).get();
-}
