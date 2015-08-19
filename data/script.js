@@ -1,13 +1,10 @@
-self.on("context", function() {
+self.on("context", function() { // when right click - get selected
 	selectionText = getSelectedText(window, document);
 	self.postMessage({name:"context", data:selectionText});
 	return true;
 });
 self.on("click", function() {
 	self.postMessage({name:"click", data:"https://translate.yandex.ru?text=" + selectionText.replace("&", "%26")});
-});
-self.on('translated', function(translatedText) {
-	console.log(translatedText);
 });
 
 function getSelectedText(win,doc) {

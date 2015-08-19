@@ -1,49 +1,55 @@
 const { getMostRecentBrowserWindow } = require('sdk/window/utils');
-var uuid = require('sdk/util/uuid').uuid();
-var uuidstr = uuid.number.substring(1, 37);
-var notifications = require("sdk/notifications");
-var contextMenu = require("sdk/context-menu");
-var Request = require("sdk/request").Request;
-var self = require('sdk/self');
-var data = require('sdk/self').data;
-var tabs = require('sdk/tabs');
-var prefs = require('sdk/simple-prefs').prefs;
-var cmitems = null;
-var { ActionButton } = require('sdk/ui/button/action');
 
-var wasTranslatedSecondTime = false;
-var inProgress = '...';
-var translated = '';
-var selectionText = '';
+var 
+	uuid = require('sdk/util/uuid').uuid(),
+	uuidstr = uuid.number.substring(1, 37),
+	notifications = require("sdk/notifications"),
+	contextMenu = require("sdk/context-menu"),
+	Request = require("sdk/request").Request,
+	self = require('sdk/self'),
+	data = require('sdk/self').data,
+	tabs = require('sdk/tabs'),
+	selection = require('sdk/selection'),
+	prefs = require('sdk/simple-prefs').prefs,
+	cmitems = null,
+	{ ActionButton } = require('sdk/ui/button/action'),
 
-var button = ActionButton({
-	id: 'translate-button',
-	label: 'Replace selected text with translated',
-	icon: './ico.png',
-	onclick: function() {
-		console.log('x');
-	}
-});
+	wasTranslatedSecondTime = false,
+	inProgress = '...',
+	translated = '',
+	selectionText = '',
 
-var menuItem = contextMenu.Item({
-	data: uuidstr, // for 'binding' tooltop's 'id' + text
-	label: inProgress, // ...
-	image: self.data.url('ico.png'),
-	context: contextMenu.SelectionContext(),
-	contentScriptFile: data.url('script.js'),
-	onMessage: function(message) {
-		if (message.name == 'context') {
-			menuItem.label = inProgress; // ...
-			if (cmitems != undefined) cmitems[0].tooltipText = '';
-			var input = message.data.replace('&', '%26');
-			translate('ru', input); // default direction - from EN to RU
-		} else { // if (message.name == 'click')
-			tabs.open(message.data);
+	button = ActionButton({
+		id: 'translate-button',
+		label: 'Replace selected text with translated',
+		icon: './ico.png',
+		onClick: function() {
+			if (selection.text) {
+				translate('ru', selection.text, function() {selection.html = translated;}); // default direction - from EN to RU
+			} else popup('Nothing selected');
+		} 
+	}),
+
+	menuItem = contextMenu.Item({
+		data: uuidstr, // for 'binding' tooltop's 'id' + text
+		label: inProgress, // ...
+		image: self.data.url('ico.png'),
+		context: contextMenu.SelectionContext(),
+		contentScriptFile: data.url('script.js'),
+		onMessage: function(message) {
+			if (message.name == 'context') {
+				menuItem.label = inProgress; // ...
+				if (cmitems != undefined) cmitems[0].tooltipText = '';
+				var input = message.data.replace('&', '%26');
+				translate('ru', input); // default direction - from EN to RU
+			} else { // if (message.name == 'click')
+				tabs.open(message.data);
+			}
 		}
-	}
-});
+	})
+;
 
-function translate(lang, input) {
+function translate(lang, input, callback) {
 	Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
 		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20150627T071448Z.117dacaac1e63b79.6b1b4bb84635161fcd400dace9fb2220d6f344ef&lang=' + lang + '&text=' + input,
 		onComplete: function (response) {
@@ -55,9 +61,10 @@ function translate(lang, input) {
 				if (prefs.popup) popup(translated);
 				menuItem.label = translated;
 				wasTranslatedSecondTime = false;
-				if (prefs.tooltip) tooltip(translated);
+				if (prefs.tooltip && !callback) tooltip(translated);
 				getMostRecentBrowserWindow().document.querySelectorAll('#text').value = translated;
 			}
+			callback();
 		}
 	}).get();
 }
