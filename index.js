@@ -24,6 +24,8 @@ var
 		id: 'translate-button',
 		label: 'Replace selected text with translated',
 		icon: './ico.png',
+		context: contextMenu.SelectionContext(),
+		contentScriptFile: data.url('script.js'),
 		onClick: function() {
 			if (selection.text) {
 				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
