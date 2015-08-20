@@ -83,7 +83,7 @@ function translate(lang, input, key, callback) {
 					text: 'Click here for opening page when you can get another API-key. After getting key - insert in preferences of this addon',
 					time: 50000,
 					onClick: function() {
-						tabs.open('https://tech.yandex.com/keys');
+						tabs.open('https://tech.yandex.com/keys/get/?service=trnsl');
 					}
 				})
 			}
