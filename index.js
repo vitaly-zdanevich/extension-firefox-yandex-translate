@@ -1,7 +1,6 @@
 const { getMostRecentBrowserWindow } = require('sdk/window/utils');
-require("sdk/simple-prefs").on('hotkey', onPrefChange);
 
-var
+var prefName = 'hotkey',
 	uuid = require('sdk/util/uuid').uuid(),
 	uuidstr = uuid.number.substring(1, 37),
 	notifications = require("sdk/notifications"),
@@ -24,7 +23,7 @@ var
 
 	button = ActionButton({
 		id: 'translate-button',
-		label: getLabelButton(prefs.hotkey),
+		label: 'Replace selected text with translated: Ctrl + Shift + ' + prefs.hotkey + ' - in options you can change this hotkey',
 		icon: './ico.png',
 		context: contextMenu.SelectionContext(),
 		contentScriptFile: data.url('script.js'),
@@ -64,7 +63,7 @@ function translate(lang, input, key, callback) {
 	Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
 		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + key + '&lang=' + lang + '&text=' + input,
 		onComplete: function (response) {
-			if (response && response.json.code == 200) { // ok
+			if (responce && response.json.code == 200) { // ok
 				translated = response.json.text[0];
 				if (input == translated && wasTranslatedSecondTime == false) {  				// if input on Russian and we receive the same text -
 					translate('en', input, key, function() {selection.html = translated;});     // translate again selected text into English
@@ -108,20 +107,18 @@ function tooltip(translated) {
 }
 
 function onPrefChange(prefName) {
+	console.log('xxx: onPrefChange');
+	require("sdk/simple-prefs").on('hotkey', setHotkeyFromPrefs);
 	setHotkeyFromPrefs();
 }
 function setHotkeyFromPrefs() {
+	console.log(hotkey);
 	if (hotkey) hotkey.destroy();
-	button.label = getLabelButton(prefs.hotkey);
 	var hotkey = Hotkey({
-		combo: prefs.hotkey,
+		combo: 'accel-shift-' + prefs.hotkey,
 		onPress: function() {
 			if (selection.text != null)
 				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
 		}
 	})
-}
-
-function getLabelButton(hotkey) {
-	return 'Replace selected text with translated: ' + hotkey + ' - in options you can change this hotkey'
 }
