@@ -18,21 +18,9 @@
     "value": true
   },{
     "name": "hotkey",
-    "type": "radio",
-    "title": "hotkey: Ctrl + Shift + ",
+    "type": "string",
+    "title": "hotkey",
     "value": "T",
-    "options": [
-      {
-        "value": "T",
-        "label": "T"
-      },{
-        "value": "B",
-        "label": "B"
-      }, {
-        "value": "U",
-        "label": "U"
-      }
-    ]
   },{
     "name": "keyUsers",
     "title": "Your key from tech.yandex.ru/keys",
