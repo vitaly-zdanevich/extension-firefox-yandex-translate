@@ -1,6 +1,6 @@
 const { getMostRecentBrowserWindow } = require('sdk/window/utils');
 
-var 
+var
 	uuid = require('sdk/util/uuid').uuid(),
 	uuidstr = uuid.number.substring(1, 37),
 	notifications = require("sdk/notifications"),
@@ -32,7 +32,7 @@ var
 				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
 		}
 	}),
-	Hotkey({
+	hotkey = Hotkey({
 		combo: 'accel-shift-' + prefs.hotkey,
 		onPress: function() {
 			if (selection.text != null)
@@ -63,7 +63,7 @@ function translate(lang, input, key, callback) {
 	Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
 		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + key + '&lang=' + lang + '&text=' + input,
 		onComplete: function (response) {
-			if (response.json.code == 200) { // ok
+			if (response && response.json.code == 200) { // ok
 				translated = response.json.text[0];
 				if (input == translated && wasTranslatedSecondTime == false) {  				// if input on Russian and we receive the same text -
 					translate('en', input, key, function() {selection.html = translated;});     // translate again selected text into English
@@ -104,4 +104,21 @@ function tooltip(translated) {
 	cmitems = getMostRecentBrowserWindow().document.querySelectorAll(".addon-context-menu-item[value^='"+uuidstr+"']");
 	if (cmitems[0])
 		cmitems[0].tooltipText = cmitems[0].value.substring(36);
+}
+
+function onPrefChange(prefName) {
+	console.log('xxx: onPrefChange');
+	require("sdk/simple-prefs").on('hotkey', setHotkeyFromPrefs);
+	setHotkeyFromPrefs();
+}
+function setHotkeyFromPrefs() {
+	console.log(hotkey);
+	if (hotkey) hotkey.destroy();
+	var hotkey = Hotkey({
+		combo: 'accel-shift-' + prefs.hotkey,
+		onPress: function() {
+			if (selection.text != null)
+				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
+		}
+	})
 }
