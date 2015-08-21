@@ -27,7 +27,7 @@ var
 		label: getLabelButton(prefs.hotkey),
 		icon: './ico.png',
 		context: contextMenu.SelectionContext(),
-		contentScriptFile: data.url('script.js'),
+		contentScriptFile: data.url('contentScript.js'),
 		onClick: function() {
 			if (selection.text != null) // Merge duplicated onClick and onPress to named function and call it here? Not working
 				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
@@ -41,12 +41,22 @@ var
 		}
 	}),
 
+	buttonTranslateFullPage = ActionButton({
+		id: 'translate-button2',
+		label: 'Translate full page',
+		icon: './ico-full.svg',
+		context: contextMenu.SelectionContext(),
+		onClick: function() {
+			translateFullPage();
+		}
+	}),
+
 	menuItem = contextMenu.Item({
 		data: uuidstr, // for 'binding' tooltop's 'id' + text
 		label: inProgress, // ...
 		image: self.data.url('ico.png'),
 		context: contextMenu.SelectionContext(),
-		contentScriptFile: data.url('script.js'),
+		contentScriptFile: data.url('contentScript.js'),
 		onMessage: function(message) {
 			if (message.name == 'context') {
 				menuItem.label = inProgress; // ...
@@ -63,7 +73,7 @@ var
 function translate(lang, input, key, callback) {
 	Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
 		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + key + '&lang=' + lang + '&text=' + input,
-		onComplete: function (response) {
+		onComplete: function(response) {
 			if (response && response.json.code == 200) { // ok
 				translated = response.json.text[0];
 				if (input == translated && wasTranslatedSecondTime == false) {  				// if input on Russian and we receive the same text -
@@ -89,6 +99,10 @@ function translate(lang, input, key, callback) {
 			}
 		}
 	}).get();
+}
+
+function translateFullPage() {
+	tabs.open('https://translate.yandex.by/web?url=' + tabs.activeTab.url);
 }
 
 function popup(text) {
