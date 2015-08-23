@@ -86,7 +86,7 @@ function translate(lang, input, key, callback) {
 					if (prefs.tooltip && !callback) tooltip(translated);
 					if (callback) callback();
 				}
-			} else if (prefs.keyUsers == '') { // key ended and user not input own key in preferences
+			} else if (!prefs.keyUsers) { // not ok - key ended and user not input own key in preferences
 				menuItem.label = ':(';
 				notifications.notify({
 					title: 'API-key ended - for continue of translating please get another one, it is free',

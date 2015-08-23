@@ -1,7 +1,7 @@
 {
   "title": "Yandex translate - from anything to Russian (or from Russian to English)",
   "name": "yandex-translate-in-context",
-  "version": "1.7",
+  "version": "1.7.1",
   "id": "jid1-ac4GNZhbcz2Q0A@jetpack",
   "description": "Translate selected word or phrase over translate.yandex.ru from any lang to Russian (or from Russian to English) - result in context menu (right click), tooltip (move the mouse over the context menu item), in popup (if Firefox not in fullscreen) and full page translation. If a pop-up window disappears before you have time to read it - just hover your mouse over the pop-up window - and it will not disappear until you remove the mouse. Also you can select text and push the button or Ctrl+Shift+T and translated text will replace selected text. You can change hotkey in preferences. Minimum and fast. Not affect DOM. Unofficial extension - works using official API. Source code at https://github.com/vitaly-zdanevich/extension-firefox-yandex-translate",
   "author": "Vitaly Zdanevich",
