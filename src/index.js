@@ -1,5 +1,6 @@
 const { getMostRecentBrowserWindow } = require('sdk/window/utils');
 require("sdk/simple-prefs").on('hotkey', onPrefChange);
+require("sdk/simple-prefs").on('keyUsers', onKeySet);
 
 var
 	uuid = require('sdk/util/uuid').uuid(),
@@ -20,7 +21,7 @@ var
 	inProgress = '...',
 	translated = '',
 	selectionText = '',
-	key = "trnsl.1.1.20150627T071448Z.117dacaac1e63b79.6b1b4bb84635161fcd400dace9fb2220d6f344ef",
+	key = "trnsl.1.1.20150823T200149Z.8e278ae355e9c41b.106d24775a3c7e6b9b39270d7a455555244952fa",
 
 	button = ActionButton({
 		id: 'translate-button',
@@ -86,11 +87,11 @@ function translate(lang, input, key, callback) {
 					if (prefs.tooltip && !callback) tooltip(translated);
 					if (callback) callback();
 				}
-			} else if (!prefs.keyUsers) { // not ok - key ended and user not input own key in preferences
+			} else { // not ok - key ended and user not input own key in preferences
 				menuItem.label = ':(';
 				notifications.notify({
 					title: 'API-key ended - for continue of translating please get another one, it is free',
-					text: 'Click here for opening page when you can get another API-key. After getting key - insert in preferences of this addon',
+					text: 'Click here for opening page when you can get another API-key. After getting key - insert in preferences of this addon.\n\nResponse from Yandes: \n\n' + response.text,
 					time: 50000,
 					onClick: function() {
 						tabs.open('https://tech.yandex.com/keys/get/?service=trnsl');
@@ -134,6 +135,10 @@ function setHotkeyFromPrefs() {
 				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
 		}
 	})
+}
+
+function onKeySet() {
+	key = prefs.keyUsers;
 }
 
 function getLabelButton(hotkey) {
