@@ -1,6 +1,6 @@
 const { getMostRecentBrowserWindow } = require('sdk/window/utils');
-require("sdk/simple-prefs").on('hotkey', onPrefChange);
-require("sdk/simple-prefs").on('keyUsers', onKeySet);
+require("sdk/simple-prefs").on('hotkey', onChangeHotkey);
+require("sdk/simple-prefs").on('apiKey', onKeySet);
 
 var
 	uuid = require('sdk/util/uuid').uuid(),
@@ -34,13 +34,7 @@ var
 				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
 		}
 	}),
-	hotkey = Hotkey({
-		combo: 'accel-shift-' + prefs.hotkey,
-		onPress: function() {
-			if (selection.text != null)
-				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
-		}
-	}),
+	hotkey = setHotkeyFromPrefs(),
 
 	buttonTranslateFullPage = ActionButton({
 		id: 'translate-button2',
@@ -122,23 +116,27 @@ function tooltip(translated) {
 		cmitems[0].tooltipText = cmitems[0].value.substring(36);
 }
 
-function onPrefChange(prefName) {
+function onChangeHotkey() {
 	setHotkeyFromPrefs();
 }
 function setHotkeyFromPrefs() {
 	if (hotkey) hotkey.destroy();
-	button.label = getLabelButton(prefs.hotkey);
-	var hotkey = Hotkey({
-		combo: prefs.hotkey,
-		onPress: function() {
-			if (selection.text != null)
-				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
-		}
-	})
+	if (prefs.hotkey.length > 0) {
+		button.label = getLabelButton(prefs.hotkey);
+		var hotkey = Hotkey({
+			combo: prefs.hotkey,
+			onPress: function() {
+				if (selection.text != null)
+					translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
+			}
+		})
+	} else { // user remove hotkey
+		button.label = 'Hotkey is not set';
+	}
 }
 
 function onKeySet() {
-	key = prefs.keyUsers;
+	key = prefs.apiKey;
 }
 
 function getLabelButton(hotkey) {
