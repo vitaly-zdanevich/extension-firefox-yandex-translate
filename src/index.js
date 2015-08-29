@@ -71,8 +71,14 @@ function translate(lang, input, key, callback) {
 		onComplete: function(response) {
 			if (response && response.json.code == 200) { // ok
 				translated = response.json.text[0];
-				if (input == translated && wasTranslatedSecondTime == false) {  				// if input on Russian and we receive the same text -
-					translate('en', input, key, function() {selection.html = translated;});     // translate again selected text into English
+				if (input == translated && wasTranslatedSecondTime == false) {
+					// if input on Russian and we receive the same text -
+					// translate again selected text into English
+					if (callback) {
+						translate('en', input, key, function() {selection.html = translated;});
+					} else {
+						translate('en', input, key);
+					}
 					wasTranslatedSecondTime = true;
 				} else { // show results
 					menuItem.label = translated;
