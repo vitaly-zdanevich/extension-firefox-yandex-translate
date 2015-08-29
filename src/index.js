@@ -66,13 +66,12 @@ var
 ;
 
 function translate(lang, input, key, callback) {
-	input = input.trim();
 	Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
 		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + key + '&lang=' + lang + '&text=' + input,
 		onComplete: function(response) {
 			if (response && response.json.code == 200) { // ok
 				translated = response.json.text[0];
-				if (input == translated && wasTranslatedSecondTime == false) {
+				if (input.trim() == translated.trim() && wasTranslatedSecondTime == false) {
 					// if input on Russian and we receive the same text -
 					// translate again selected text into English
 					if (callback) {
