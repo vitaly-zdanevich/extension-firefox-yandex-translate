@@ -75,7 +75,7 @@ function translate(lang, input, key, callback) {
 					// if input on Russian and we receive the same text -
 					// translate again selected text into English
 					if (callback) {
-						translate('en', input, key, function() {selection.html = translated;});
+						translate('en', input, key, callback);
 					} else {
 						translate('en', input, key);
 					}
