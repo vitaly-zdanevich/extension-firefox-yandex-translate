@@ -66,6 +66,7 @@ var
 ;
 
 function translate(lang, input, key, callback) {
+	input = input.trim();
 	Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
 		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + key + '&lang=' + lang + '&text=' + input,
 		onComplete: function(response) {
