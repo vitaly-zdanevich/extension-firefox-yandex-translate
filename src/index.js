@@ -17,7 +17,7 @@ var
 	cmitems = null,
 	{ ActionButton } = require('sdk/ui/button/action'),
 
-	wasTranslatedSecondTime = false,
+	wasTranslated = false,
 	inProgress = '...',
 	translated = '',
 	selectionText = '',
@@ -71,18 +71,14 @@ function translate(lang, input, key, callback) {
 		onComplete: function(response) {
 			if (response && response.json.code == 200) { // ok
 				translated = response.json.text[0];
-				if (input.trim() == translated.trim() && wasTranslatedSecondTime == false) {
+				if (input.trim() == translated.trim() && wasTranslated == false) {
 					// if input on Russian and we receive the same text -
 					// translate again selected text into English
-					if (callback) {
-						translate('en', input, key, callback);
-					} else {
-						translate('en', input, key);
-					}
-					wasTranslatedSecondTime = true;
+					translate('en', input, key, callback);
+					wasTranslated = true;
 				} else { // show results
 					menuItem.label = translated;
-					wasTranslatedSecondTime = false;
+					wasTranslated = false;
 					if (prefs.popup) popup(translated);
 					if (prefs.tooltip && !callback) tooltip(translated);
 					if (callback) callback();
