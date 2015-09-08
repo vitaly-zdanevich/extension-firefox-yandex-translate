@@ -66,36 +66,37 @@ var
 ;
 
 function translate(lang, input, key, callback) {
-	Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
-		url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + key + '&lang=' + lang + '&text=' + input,
-		onComplete: function(response) {
-			if (response && response.json.code == 200) { // ok
-				translated = response.json.text[0];
-				if (input.trim() == translated.trim() && wasTranslated == false) {
-					// if input on Russian and we receive the same text -
-					// translate again selected text into English
-					translate('en', input, key, callback);
-					wasTranslated = true;
-				} else { // show results
-					menuItem.label = translated;
-					wasTranslated = false;
-					if (prefs.popup) popup(translated);
-					if (prefs.tooltip && !callback) tooltip(translated);
-					if (callback) callback();
-				}
-			} else { // not ok - key ended
-				menuItem.label = ':(';
-				notifications.notify({
-					title: 'API-key ended - for continue of translating please get another one, it is free',
-					text: 'Click here for opening page when you can get another API-key. After getting key - insert in preferences of this addon.\n\nResponse from Yandes: \n\n' + response.text,
-					time: 50000,
-					onClick: function() {
-						tabs.open('https://tech.yandex.com/keys/get/?service=trnsl');
+	if (input.length > 0)
+		Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
+			url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + key + '&lang=' + lang + '&text=' + input,
+			onComplete: function(response) {
+				if (response && response.json.code == 200) { // ok
+					translated = response.json.text[0];
+					if (input.trim() == translated.trim() && wasTranslated == false) {
+						// if input on Russian and we receive the same text -
+						// translate again selected text into English
+						translate('en', input, key, callback);
+						wasTranslated = true;
+					} else { // show results
+						menuItem.label = translated;
+						wasTranslated = false;
+						if (prefs.popup) popup(translated);
+						if (prefs.tooltip && !callback) tooltip(translated);
+						if (callback) callback();
 					}
-				})
+				} else { // not ok - key ended
+					menuItem.label = ':(';
+					notifications.notify({
+						title: 'API-key ended - for continue of translating please get another one, it is free',
+						text: 'Click here for opening page when you can get another API-key. After getting key - insert in preferences of this addon.\n\nResponse from Yandes: \n\n' + response.text,
+						time: 50000,
+						onClick: function() {
+							tabs.open('https://tech.yandex.com/keys/get/?service=trnsl');
+						}
+					})
+				}
 			}
-		}
-	}).get();
+		}).get();
 }
 
 function translateFullPage() {
