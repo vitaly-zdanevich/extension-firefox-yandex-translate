@@ -21,7 +21,7 @@ var
 	inProgress = '...',
 	translated = '',
 	selectionText = '',
-	key = "trnsl.1.1.20150823T200149Z.8e278ae355e9c41b.106d24775a3c7e6b9b39270d7a455555244952fa",
+	apiKey = prefs.apiKey ? prefs.apiKey : "trnsl.1.1.20150823T200149Z.8e278ae355e9c41b.106d24775a3c7e6b9b39270d7a455555244952fa",
 
 	button = ActionButton({
 		id: 'translate-button',
@@ -31,7 +31,7 @@ var
 		contentScriptFile: data.url('contentScript.js'),
 		onClick: function() {
 			if (selection.text != null) // Merge duplicated onClick and onPress to named function and call it here? Not working
-				translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
+				translate('ru', selection.text, apiKey, function() {selection.html = translated;}); // default direction - from EN to RU
 		}
 	}),
 	hotkey = setHotkeyFromPrefs(),
@@ -57,7 +57,7 @@ var
 				menuItem.label = inProgress; // ...
 				if (cmitems != undefined && cmitems[0]) cmitems[0].tooltipText = '';
 				var input = message.data.replace('&', '%26');
-				translate('ru', input, key); // default direction - from EN to RU
+				translate('ru', input, apiKey); // default direction - from EN to RU
 			} else { // if (message.name == 'click')
 				tabs.open(message.data);
 			}
@@ -65,17 +65,17 @@ var
 	})
 ;
 
-function translate(lang, input, key, callback) {
+function translate(lang, input, apiKey, callback) {
 	if (input.length > 0)
 		Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
-			url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + key + '&lang=' + lang + '&text=' + input,
+			url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + apiKey + '&lang=' + lang + '&text=' + input,
 			onComplete: function(response) {
 				if (response && response.json.code == 200) { // ok
 					translated = response.json.text[0];
 					if (input.trim() == translated.trim() && wasTranslated == false) {
 						// if input on Russian and we receive the same text -
 						// translate again selected text into English
-						translate('en', input, key, callback);
+						translate('en', input, apiKey, callback);
 						wasTranslated = true;
 					} else { // show results
 						menuItem.label = translated;
@@ -139,7 +139,7 @@ function setHotkeyFromPrefs() {
 }
 
 function onKeySet() {
-	key = prefs.apiKey;
+	apiKey = prefs.apiKey;
 }
 
 function getLabelButton(hotkey) {
