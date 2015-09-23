@@ -1,6 +1,9 @@
 const { getMostRecentBrowserWindow } = require('sdk/window/utils');
-require("sdk/simple-prefs").on('hotkey', onChangeHotkey);
+require("sdk/simple-prefs").on('hotkeyReplace', onChangeHotkeyReplaceSelected);
+require("sdk/simple-prefs").on('hotkeyPopup', onChangeHotkeyPopup);
 require("sdk/simple-prefs").on('apiKey', onKeySet);
+require("sdk/simple-prefs").on('context', onPrefChangeContextShowOrNot);
+require("sdk/simple-prefs").on('context', onPrefChangeContextShowOrNot);
 
 var
 	uuid = require('sdk/util/uuid').uuid(),
@@ -23,9 +26,22 @@ var
 	selectionText = '',
 	apiKey = prefs.apiKey ? prefs.apiKey : "trnsl.1.1.20150823T200149Z.8e278ae355e9c41b.106d24775a3c7e6b9b39270d7a455555244952fa",
 
-	button = ActionButton({
-		id: 'translate-button',
-		label: getLabelButton(prefs.hotkey),
+	buttonPopupWithTranslation = ActionButton({
+		id: 'buttonPopupWithTranslation',
+		label: getLabelForPopupButton(),
+		icon: './ico-white.png',
+		context: contextMenu.SelectionContext(),
+		contentScriptFile: data.url('contentScript.js'),
+		onClick: function() {
+			if (selection.text != null) // Merge duplicated onClick and onPress to named function and call it here? Not working
+				translate('ru', selection.text, apiKey); // default direction - from EN to RU
+		}
+	}),
+	hotkeyPopup = setHotkeyFromPrefsForTranslatingAndPopup(), // this line must be here because here we set hotkey for previously created UI-button 
+
+	buttonReplaceSelectedText = ActionButton({
+		id: 'buttonReplaceText',
+		label: getLabelForReplacementButton(),
 		icon: './ico.png',
 		context: contextMenu.SelectionContext(),
 		contentScriptFile: data.url('contentScript.js'),
@@ -34,10 +50,11 @@ var
 				translate('ru', selection.text, apiKey, function() {selection.html = translated;}); // default direction - from EN to RU
 		}
 	}),
-	hotkey = setHotkeyFromPrefs(),
+	hotkeyReplace = setHotkeyFromPrefsForTranslatingAndReplacementSelectedText(), // this line must be here because here we set hotkey for previously created UI-button 
+
 
 	buttonTranslateFullPage = ActionButton({
-		id: 'translate-button2',
+		id: 'buttonTranslateFullPage',
 		label: 'Translate full page',
 		icon: './ico-full.svg',
 		context: contextMenu.SelectionContext(),
@@ -46,7 +63,7 @@ var
 		}
 	}),
 
-	menuItem = contextMenu.Item({
+	menuItem = prefs.context ? contextMenu.Item({
 		data: uuidstr, // for 'binding' tooltop's 'id' + text
 		label: inProgress, // ...
 		image: self.data.url('ico.png'),
@@ -62,7 +79,7 @@ var
 				tabs.open(message.data);
 			}
 		}
-	})
+	}) : null;
 ;
 
 function translate(lang, input, apiKey, callback) {
@@ -85,7 +102,7 @@ function translate(lang, input, apiKey, callback) {
 						if (callback) callback();
 					}
 				} else { // not ok - key ended
-					menuItem.label = ':(';
+					if (menuItem) menuItem.label = ':(';
 					notifications.notify({
 						title: 'API-key ended - for continue of translating please get another one, it is free',
 						text: 'Click here for opening page when you can get another API-key. After getting key - insert in preferences of this addon.\n\nResponse from Yandes: \n\n' + response.text,
@@ -119,22 +136,59 @@ function tooltip(translated) {
 		cmitems[0].tooltipText = cmitems[0].value.substring(36);
 }
 
-function onChangeHotkey() {
-	setHotkeyFromPrefs();
+function onChangeHotkeyPopup() {
+	setHotkeyFromPrefsForTranslatingAndPopup();
 }
-function setHotkeyFromPrefs() {
-	if (hotkey) hotkey.destroy();
-	if (prefs.hotkey.length > 0) {
-		button.label = getLabelButton(prefs.hotkey);
-		var hotkey = Hotkey({
-			combo: prefs.hotkey,
+
+function onChangeHotkeyReplaceSelected() {
+	setHotkeyFromPrefsForTranslatingAndReplacementSelectedText();
+}
+
+function setHotkeyFromPrefsForTranslatingAndPopup() {
+	if (hotkeyPopup) hotkey.destroy();
+	if (prefs.hotkeyPopup.length > 0) {
+		buttonPopupWithTranslation.label = getLabelForPopupButton();
+		var hotkeyPopup = Hotkey({
+			combo: prefs.hotkeyPopup,
 			onPress: function() {
 				if (selection.text != null)
-					translate('ru', selection.text, key, function() {selection.html = translated;}); // default direction - from EN to RU
+					translate('ru', selection.text, apiKey); // default direction - from EN to RU
 			}
 		})
 	} else { // user remove hotkey
-		button.label = 'Hotkey is not set';
+		buttonReplaceSelectedText.label = 'Hotkey is not set';
+	}
+}
+
+function setHotkeyFromPrefsForTranslatingAndReplacementSelectedText() {
+	if (hotkeyReplace) hotkey.destroy();
+	if (prefs.hotkeyReplace.length > 0) {
+		buttonReplaceSelectedText.label = getLabelForReplacementButton();
+		var hotkeyReplace = Hotkey({
+			combo: prefs.hotkeyReplace,
+			onPress: function() {
+				if (selection.text != null)
+					translate('ru', selection.text, apiKey, function() {selection.html = translated;}); // default direction - from EN to RU
+			}
+		})
+	} else { // user remove hotkey
+		buttonReplaceSelectedText.label = 'Hotkey is not set';
+	}
+}
+
+function setHotkeyFromPrefsForTranslatingAndReplacementSelectedText() {
+	if (hotkeyReplace) hotkey.destroy();
+	if (prefs.hotkeyReplace.length > 0) {
+		buttonReplaceSelectedText.label = getLabelForReplacementButton();
+		var hotkeyReplace = Hotkey({
+			combo: prefs.hotkeyReplace,
+			onPress: function() {
+				if (selection.text != null)
+					translate('ru', selection.text, apiKey, function() {selection.html = translated;}); // default direction - from EN to RU
+			}
+		})
+	} else { // user remove hotkey
+		buttonReplaceSelectedText.label = 'Hotkey is not set';
 	}
 }
 
@@ -142,6 +196,14 @@ function onKeySet() {
 	apiKey = prefs.apiKey;
 }
 
-function getLabelButton(hotkey) {
-	return 'Replace selected text with translated: ' + hotkey + ' - in options you can change this hotkey'
+function onPrefChangeContextShowOrNot() {
+	// apiKey = prefs.apiKey;
+}
+
+function getLabelForPopupButton() {
+	return 'Translate selected text and show in popup. Current hotkey: ' + prefs.hotkeyPopup;
+}
+
+function getLabelForReplacementButton() {
+	return 'Replace selected text with translated. Current hotkey: ' + prefs.hotkeyReplace;
 }
