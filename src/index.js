@@ -3,7 +3,6 @@ require("sdk/simple-prefs").on('hotkeyReplace', onChangeHotkeyReplaceSelected);
 require("sdk/simple-prefs").on('hotkeyPopup', onChangeHotkeyPopup);
 require("sdk/simple-prefs").on('apiKey', onKeySet);
 require("sdk/simple-prefs").on('context', onPrefChangeContextShowOrNot);
-require("sdk/simple-prefs").on('context', onPrefChangeContextShowOrNot);
 
 var
 	uuid = require('sdk/util/uuid').uuid(),
@@ -102,7 +101,7 @@ function translate(lang, input, apiKey, callback) {
 						if (callback) callback();
 					}
 				} else { // not ok - key ended
-					if (menuItem) menuItem.label = ':(';
+					// if (menuItem != null) menuItem.label = ':('; // if I uncomment this I get 'root is null'
 					notifications.notify({
 						title: 'API-key ended - for continue of translating please get another one, it is free',
 						text: 'Click here for opening page when you can get another API-key. After getting key - insert in preferences of this addon.\n\nResponse from Yandes: \n\n' + response.text,
@@ -145,7 +144,7 @@ function onChangeHotkeyReplaceSelected() {
 }
 
 function setHotkeyFromPrefsForTranslatingAndPopup() {
-	if (hotkeyPopup) hotkey.destroy();
+	if (hotkeyPopup) hotkeyPopup.destroy();
 	if (prefs.hotkeyPopup.length > 0) {
 		buttonPopupWithTranslation.label = getLabelForPopupButton();
 		var hotkeyPopup = Hotkey({
@@ -197,7 +196,25 @@ function onKeySet() {
 }
 
 function onPrefChangeContextShowOrNot() {
-	// apiKey = prefs.apiKey;
+	if (!prefs.context) menuItem.destroy();
+	else
+		menuItem = contextMenu.Item({
+		data: uuidstr, // for 'binding' tooltop's 'id' + text
+		label: inProgress, // ...
+		image: self.data.url('ico.png'),
+		context: contextMenu.SelectionContext(),
+		contentScriptFile: data.url('contentScript.js'),
+		onMessage: function(message) {
+			if (message.name == 'context') {
+				menuItem.label = inProgress; // ...
+				if (cmitems != undefined && cmitems[0]) cmitems[0].tooltipText = '';
+				var input = message.data.replace('&', '%26');
+				translate('ru', input, apiKey); // default direction - from EN to RU
+			} else { // if (message.name == 'click')
+				tabs.open(message.data);
+			}
+		}
+	});
 }
 
 function getLabelForPopupButton() {
