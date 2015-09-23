@@ -62,23 +62,7 @@ var
 		}
 	}),
 
-	menuItem = prefs.context ? contextMenu.Item({
-		data: uuidstr, // for 'binding' tooltop's 'id' + text
-		label: inProgress, // ...
-		image: self.data.url('ico.png'),
-		context: contextMenu.SelectionContext(),
-		contentScriptFile: data.url('contentScript.js'),
-		onMessage: function(message) {
-			if (message.name == 'context') {
-				menuItem.label = inProgress; // ...
-				if (cmitems != undefined && cmitems[0]) cmitems[0].tooltipText = '';
-				var input = message.data.replace('&', '%26');
-				translate('ru', input, apiKey); // default direction - from EN to RU
-			} else { // if (message.name == 'click')
-				tabs.open(message.data);
-			}
-		}
-	}) : null;
+	menuItem = getContextMenuItem()
 ;
 
 function translate(lang, input, apiKey, callback) {
@@ -94,14 +78,14 @@ function translate(lang, input, apiKey, callback) {
 						translate('en', input, apiKey, callback);
 						wasTranslated = true;
 					} else { // show results
-						menuItem.label = translated;
+						if (prefs.context) menuItem.label = translated;
 						wasTranslated = false;
 						if (prefs.popup) popup(translated);
-						if (prefs.tooltip && !callback) tooltip(translated);
+						if (prefs.context && prefs.tooltip && !callback) tooltip(translated);
 						if (callback) callback();
 					}
 				} else { // not ok - key ended
-					// if (menuItem != null) menuItem.label = ':('; // if I uncomment this I get 'root is null'
+					if (prefs.context) menuItem.label = ':(';
 					notifications.notify({
 						title: 'API-key ended - for continue of translating please get another one, it is free',
 						text: 'Click here for opening page when you can get another API-key. After getting key - insert in preferences of this addon.\n\nResponse from Yandes: \n\n' + response.text,
@@ -196,9 +180,14 @@ function onKeySet() {
 }
 
 function onPrefChangeContextShowOrNot() {
-	if (!prefs.context) menuItem.destroy();
+	if (!prefs.context) 
+		menuItem.destroy();
 	else
-		menuItem = contextMenu.Item({
+		menuItem = getContextMenuItem();
+}
+
+function getContextMenuItem() {
+	return prefs.context ? contextMenu.Item({
 		data: uuidstr, // for 'binding' tooltop's 'id' + text
 		label: inProgress, // ...
 		image: self.data.url('ico.png'),
@@ -214,7 +203,7 @@ function onPrefChangeContextShowOrNot() {
 				tabs.open(message.data);
 			}
 		}
-	});
+	}) : null;
 }
 
 function getLabelForPopupButton() {
