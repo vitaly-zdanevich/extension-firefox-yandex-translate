@@ -8,7 +8,7 @@
   "license": "MPL 2.0",
   "preferences": [{
     "name": "popup",
-    "title": "popup",
+    "title": "Show popup",
     "type": "bool",
     "value": true
   },{
@@ -18,7 +18,7 @@
     "value": true
   },{
     "name": "tooltip",
-    "title": "Tooltip",
+    "title": "Show tooltip",
     "type": "bool",
     "value": true
   },{
