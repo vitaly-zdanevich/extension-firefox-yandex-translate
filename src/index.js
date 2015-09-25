@@ -70,6 +70,7 @@ function translate(lang, input, apiKey, callback) {
 		Request({ // key is not referral but API-key: https://api.yandex.com/translate/doc/dg/concepts/api-overview.xml
 			url: 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' + apiKey + '&lang=' + lang + '&text=' + input,
 			onComplete: function(response) {
+				if (prefs.tts) tts(input);
 				if (response && response.json.code == 200) { // ok
 					translated = response.json.text[0];
 					if (input.trim() == translated.trim() && wasTranslated == false) {
@@ -82,7 +83,7 @@ function translate(lang, input, apiKey, callback) {
 						wasTranslated = false;
 						if (prefs.popup) popup(translated);
 						if (prefs.context && prefs.tooltip && !callback) tooltip(translated);
-						if (callback) callback();
+						if (callback) callback(); // replace selected text by translated
 					}
 				} else { // not ok - key ended
 					if (prefs.context) menuItem.label = ':(';
@@ -212,4 +213,11 @@ function getLabelForPopupButton() {
 
 function getLabelForReplacementButton() {
 	return 'Replace selected text with translated. Current hotkey: ' + prefs.hotkeyReplace;
+}
+
+function tts(input) {
+	var window = require('sdk/window/utils').getMostRecentBrowserWindow();
+	var audio = (!prefs.ttsGoogle)  ? new window.Audio('http://tts.voicetech.yandex.net/tts?format=mp3&quality=hi&platform=web&application=unofficialFirefoxAddonByVitalyZdanevich&lang=en_GB&text='+input)
+								   : new window.Audio('https://translate.google.com/translate_tts?tl=en&client=t&q='+input)
+	audio.play();
 }

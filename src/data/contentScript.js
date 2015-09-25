@@ -3,6 +3,7 @@ self.on('context', function() { // when right click - get selected
 	self.postMessage({name:'context', data:selectionText});
 	return true;
 });
+
 self.on('click', function() {
 	self.postMessage({name:'click', data:'https://translate.yandex.ru?text=' + selectionText.replace('&', '%26')});
 });
