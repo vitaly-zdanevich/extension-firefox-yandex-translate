@@ -140,7 +140,7 @@ function setHotkeyFromPrefsForTranslatingAndPopup() {
 			}
 		})
 	} else { // user remove hotkey
-		buttonReplaceSelectedText.label = 'Hotkey is not set';
+		buttonPopupWithTranslation.label = 'Hotkey is not set';
 	}
 }
 
@@ -218,6 +218,6 @@ function getLabelForReplacementButton() {
 function tts(input) {
 	var window = require('sdk/window/utils').getMostRecentBrowserWindow();
 	var audio = (!prefs.ttsGoogle)  ? new window.Audio('http://tts.voicetech.yandex.net/tts?format=mp3&quality=hi&platform=web&application=unofficialFirefoxAddonByVitalyZdanevich&lang=en_GB&text='+input)
-								   : new window.Audio('https://translate.google.com/translate_tts?tl=en&client=t&q='+input)
+								    : new window.Audio('https://translate.google.com/translate_tts?tl=en&client=t&q='+input)
 	audio.play();
 }
