@@ -1,7 +1,8 @@
 const { getMostRecentBrowserWindow } = require('sdk/window/utils');
-require("sdk/simple-prefs").on('hotkeyReplace', onChangeHotkeyReplaceSelected);
-require("sdk/simple-prefs").on('apiKey', onKeySet);
+require("sdk/simple-prefs").on('hotkeyPopup', setHotkeyFromPrefsForTranslatingAndPopup);
+require("sdk/simple-prefs").on('hotkeyReplace', setHotkeyFromPrefsForTranslatingAndReplacementSelectedText);
 require("sdk/simple-prefs").on('context', onPrefChangeContextShowOrNot);
+require("sdk/simple-prefs").on('apiKey', onKeySet);
 
 var
 	uuid = require('sdk/util/uuid').uuid(),
@@ -12,7 +13,9 @@ var
 	self = require('sdk/self'),
 	data = require('sdk/self').data,
 	tabs = require('sdk/tabs'),
-	{ Hotkey } = require("sdk/hotkeys");
+	{ Hotkey } = require("sdk/hotkeys"),
+	hotkeyPopup,
+	hotkeyReplace,
 	selection = require('sdk/selection'),
 	prefs = require('sdk/simple-prefs').prefs,
 	cmitems = null,
@@ -23,6 +26,8 @@ var
 	translated = '',
 	selectionText = '',
 	apiKey = prefs.apiKey ? prefs.apiKey : "trnsl.1.1.20150823T200149Z.8e278ae355e9c41b.106d24775a3c7e6b9b39270d7a455555244952fa",
+
+	menuItem = getContextMenuItem()
 
 	buttonPopupWithTranslation = ActionButton({
 		id: 'buttonPopupWithTranslation',
@@ -35,7 +40,6 @@ var
 				translate('ru', selection.text, apiKey); // default direction - from EN to RU
 		}
 	}),
-	hotkeyPopup = setHotkeyFromPrefsForTranslatingAndPopup(), // this line must be here because here we set hotkey for previously created UI-button
 
 	buttonReplaceSelectedText = ActionButton({
 		id: 'buttonReplaceText',
@@ -48,8 +52,6 @@ var
 				translate('ru', selection.text, apiKey, function() {selection.html = translated;}); // default direction - from EN to RU
 		}
 	}),
-	hotkeyReplace = setHotkeyFromPrefsForTranslatingAndReplacementSelectedText(), // this line must be here because here we set hotkey for previously created UI-button
-
 
 	buttonTranslateFullPage = ActionButton({
 		id: 'buttonTranslateFullPage',
@@ -59,10 +61,11 @@ var
 		onClick: function() {
 			translateFullPage();
 		}
-	}),
-
-	menuItem = getContextMenuItem()
+	})
 ;
+
+setHotkeyFromPrefsForTranslatingAndPopup();
+setHotkeyFromPrefsForTranslatingAndReplacementSelectedText();
 
 function translate(lang, input, apiKey, callback) {
 	if (input.length > 0)
@@ -119,19 +122,12 @@ function tooltip(translated) {
 		cmitems[0].tooltipText = cmitems[0].value.substring(36);
 }
 
-function onChangeHotkeyPopup() {
-	setHotkeyFromPrefsForTranslatingAndPopup();
-}
-
-function onChangeHotkeyReplaceSelected() {
-	setHotkeyFromPrefsForTranslatingAndReplacementSelectedText();
-}
-
 function setHotkeyFromPrefsForTranslatingAndPopup() {
-	if (hotkeyPopup) hotkeyPopup.destroy();
-	if (prefs.hotkeyPopup.length > 0) {
+	// '-' when user clear last letter and want enter another - this check prevent error in console
+	if (prefs.hotkeyPopup.length > 0 && prefs.hotkeyPopup.substring(prefs.hotkeyPopup.length - 1) != '-') {
+		if (hotkeyPopup) hotkeyPopup.destroy();
 		buttonPopupWithTranslation.label = getLabelForPopupButton();
-		var hotkeyPopup = Hotkey({
+		hotkeyPopup = Hotkey({
 			combo: prefs.hotkeyPopup,
 			onPress: function() {
 				if (selection.text != null)
@@ -144,10 +140,11 @@ function setHotkeyFromPrefsForTranslatingAndPopup() {
 }
 
 function setHotkeyFromPrefsForTranslatingAndReplacementSelectedText() {
-	if (hotkeyReplace) hotkeyReplace.destroy();
-	if (prefs.hotkeyReplace.length > 0) {
+	// '-' when user clear last letter and want enter another - this check prevent error in console
+	if (prefs.hotkeyReplace.length > 0 && prefs.hotkeyPopup.substring(prefs.hotkeyPopup.length - 1) != '-') {
+		if (hotkeyReplace) hotkeyReplace.destroy();
 		buttonReplaceSelectedText.label = getLabelForReplacementButton();
-		var hotkeyReplace = Hotkey({
+		hotkeyReplace = Hotkey({
 			combo: prefs.hotkeyReplace,
 			onPress: function() {
 				if (selection.text != null)
