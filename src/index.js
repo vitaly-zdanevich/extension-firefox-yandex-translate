@@ -1,6 +1,5 @@
 const { getMostRecentBrowserWindow } = require('sdk/window/utils');
 require("sdk/simple-prefs").on('hotkeyReplace', onChangeHotkeyReplaceSelected);
-require("sdk/simple-prefs").on('hotkeyPopup', onChangeHotkeyPopup);
 require("sdk/simple-prefs").on('apiKey', onKeySet);
 require("sdk/simple-prefs").on('context', onPrefChangeContextShowOrNot);
 
@@ -36,7 +35,7 @@ var
 				translate('ru', selection.text, apiKey); // default direction - from EN to RU
 		}
 	}),
-	hotkeyPopup = setHotkeyFromPrefsForTranslatingAndPopup(), // this line must be here because here we set hotkey for previously created UI-button 
+	hotkeyPopup = setHotkeyFromPrefsForTranslatingAndPopup(), // this line must be here because here we set hotkey for previously created UI-button
 
 	buttonReplaceSelectedText = ActionButton({
 		id: 'buttonReplaceText',
@@ -49,7 +48,7 @@ var
 				translate('ru', selection.text, apiKey, function() {selection.html = translated;}); // default direction - from EN to RU
 		}
 	}),
-	hotkeyReplace = setHotkeyFromPrefsForTranslatingAndReplacementSelectedText(), // this line must be here because here we set hotkey for previously created UI-button 
+	hotkeyReplace = setHotkeyFromPrefsForTranslatingAndReplacementSelectedText(), // this line must be here because here we set hotkey for previously created UI-button
 
 
 	buttonTranslateFullPage = ActionButton({
@@ -145,23 +144,7 @@ function setHotkeyFromPrefsForTranslatingAndPopup() {
 }
 
 function setHotkeyFromPrefsForTranslatingAndReplacementSelectedText() {
-	if (hotkeyReplace) hotkey.destroy();
-	if (prefs.hotkeyReplace.length > 0) {
-		buttonReplaceSelectedText.label = getLabelForReplacementButton();
-		var hotkeyReplace = Hotkey({
-			combo: prefs.hotkeyReplace,
-			onPress: function() {
-				if (selection.text != null)
-					translate('ru', selection.text, apiKey, function() {selection.html = translated;}); // default direction - from EN to RU
-			}
-		})
-	} else { // user remove hotkey
-		buttonReplaceSelectedText.label = 'Hotkey is not set';
-	}
-}
-
-function setHotkeyFromPrefsForTranslatingAndReplacementSelectedText() {
-	if (hotkeyReplace) hotkey.destroy();
+	if (hotkeyReplace) hotkeyReplace.destroy();
 	if (prefs.hotkeyReplace.length > 0) {
 		buttonReplaceSelectedText.label = getLabelForReplacementButton();
 		var hotkeyReplace = Hotkey({
@@ -181,7 +164,7 @@ function onKeySet() {
 }
 
 function onPrefChangeContextShowOrNot() {
-	if (!prefs.context) 
+	if (!prefs.context)
 		menuItem.destroy();
 	else
 		menuItem = getContextMenuItem();
@@ -217,7 +200,6 @@ function getLabelForReplacementButton() {
 
 function tts(input) {
 	var window = require('sdk/window/utils').getMostRecentBrowserWindow();
-	var audio = (!prefs.ttsGoogle)  ? new window.Audio('http://tts.voicetech.yandex.net/tts?format=mp3&quality=hi&platform=web&application=unofficialFirefoxAddonByVitalyZdanevich&lang=en_GB&text='+input)
-								    : new window.Audio('https://translate.google.com/translate_tts?tl=en&client=t&q='+input)
+	var audio = new window.Audio('http://tts.voicetech.yandex.net/tts?format=mp3&quality=hi&platform=web&application=unofficialFirefoxAddonByVitalyZdanevich&lang=en_GB&text='+input);
 	audio.play();
 }
