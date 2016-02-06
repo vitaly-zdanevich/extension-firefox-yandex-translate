@@ -33,7 +33,7 @@
     "value": "accel-shift-T"
   },{
     "name": "tts",
-    "title": "Listen voice that speak originaly selected text - Text-To-Speach",
+    "title": "Listen voice that speak originally selected text - Text-To-Speach",
     "type": "bool",
     "value": true
   },{
